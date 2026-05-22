@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SJDD - Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f5f8fb;
+      --panel: #ffffff;
+      --text: #102033;
+      --muted: #61758f;
+      --line: #dce5ef;
+      --primary: #f0801c;
+      --primary-dark: #c5620c;
+      --primary-soft: #fff1df;
+      --primary-soft-2: #fff8ef;
+      --success: #138a36;
+      --success-soft: #e8f7ec;
+      --accent: #c96a00;
+      --accent-soft: #fff1df;
+      --shadow: 0 14px 40px rgba(16, 32, 51, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(240, 128, 28, 0.16), transparent 30%),
+        radial-gradient(circle at top right, rgba(240, 128, 28, 0.08), transparent 32%),
+        var(--bg);
+    }
+
+    .app-shell { min-height: 100vh; margin-left: 260px; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; width: 260px; padding: 24px 18px; background: linear-gradient(180deg, #2c1707 0%, #4b2406 100%); color: #fff; display: flex; flex-direction: column; gap: 20px; z-index: 10; box-shadow: 16px 0 40px rgba(16, 32, 51, 0.14); }
+    .brand { padding: 16px 16px 10px; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; background: rgba(255,255,255,0.05); }
+    .brand strong { display: block; font-size: 22px; letter-spacing: -0.03em; }
+    .brand span { display: block; margin-top: 6px; color: rgba(255,255,255,0.74); font-size: 13px; line-height: 1.45; }
+    .side-links { display: grid; gap: 8px; }
+    .side-link { text-decoration: none; color: rgba(255,255,255,0.88); border-radius: 16px; padding: 13px 14px; border: 1px solid transparent; background: rgba(255,255,255,0.03); font-weight: 700; transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, border-color 0.15s ease; }
+    .side-link:hover, .side-link.active { background: rgba(240, 128, 28, 0.18); border-color: rgba(240, 128, 28, 0.6); color: #fff4e8; transform: translateX(2px); }
+    .side-foot { margin-top: auto; font-size: 13px; color: rgba(255,255,255,0.72); line-height: 1.5; padding: 0 6px; }
+
+    .shell { max-width: 1460px; margin: 0 auto; padding: 28px; }
+    h1 { margin: 0 0 6px; font-size: clamp(30px, 4vw, 44px); letter-spacing: -0.03em; }
+    p { margin: 0; color: var(--muted); line-height: 1.5; }
+    .metrics { display: grid; gap: 14px; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 18px; }
+    .metric {
+      background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px;
+    }
+    .metric span { display: block; color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+    .metric strong { font-size: 30px; letter-spacing: -0.03em; }
+    .metric em { display: block; margin-top: 5px; font-style: normal; color: var(--muted); font-size: 13px; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .panel {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden;
+    }
+    .panel header {
+      padding: 16px 18px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; display: flex; justify-content: space-between; gap: 12px; align-items: center;
+    }
+    .panel header h2 { margin: 0; font-size: 20px; }
+    .panel header small { opacity: 0.92; }
+    .panel .body { padding: 18px; }
+    canvas { width: 100% !important; height: 340px !important; }
+
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .legend {
+      display: flex; gap: 12px; flex-wrap: wrap;
+    }
+    .legend span {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fff8ef; border: 1px solid #f4cfaa; padding: 8px 10px; border-radius: 999px;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+    @media (max-width: 1100px) {
+      .app-shell { margin-left: 0; }
+      .sidebar { position: sticky; inset: auto; width: auto; border-radius: 0 0 20px 20px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .metrics { grid-template-columns: 1fr; }
+      canvas { height: 280px !important; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <strong>SJDD</strong>
+      <span>Bloc opératoire<br />Interfaces de suivi</span>
+    </div>
+    <nav class="side-links" aria-label="Navigation principale">
+      <a class="side-link" href="index.html">Dossiers du jour</a>
+      <a class="side-link" href="detail.html">Détail dossier</a>
+      <a class="side-link" href="reglements.html">Règlements</a>
+      <a class="side-link" href="mail-medecin.html">Mail médecin</a>
+      <a class="side-link active" href="dashboard.html">Dashboard</a>
+    </nav>
+    
+  </aside>
+
+  <div class="app-shell">
+    <div class="shell">
+      <div>
+        <h1>Dashboard direction</h1>
+        <p>Indicateurs fictifs du jour avec complétude, préparation et tendances de 30 jours.</p>
+      </div>
+
+    <section class="metrics">
+      <div class="metric"><span>Taux de complétude</span><strong>73%</strong><em>16 dossiers préparés sur 22</em></div>
+      <div class="metric"><span>Dossiers préparés</span><strong>16 / 22</strong><em>Écart restant à traiter : 6</em></div>
+      <div class="metric"><span>Documents les plus manquants</span><strong>5 types</strong><em>Carte vitale, mutuelle, ordonnance, consentement, règlement</em></div>
+      <div class="metric"><span>Progression mois</span><strong>+11 pts</strong><em>Par rapport au début de période</em></div>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <header>
+          <h2>Documents les moins fournis</h2>
+          <small>Top 5 des documents manquants</small>
+        </header>
+        <div class="body">
+          <canvas id="missingDocsChart"></canvas>
+          <div class="footer-note">
+            <div class="legend">
+              <span><i class="dot" style="background:#f0801c"></i> Volume de manquants</span>
+              <span><i class="dot" style="background:#c5620c"></i> Lecture rapide pour le pilotage</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <header>
+          <h2>Évolution de la complétude</h2>
+          <small>30 derniers jours</small>
+        </header>
+        <div class="body">
+          <canvas id="completionChart"></canvas>
+          <div class="footer-note">La courbe reflète une montée progressive avec quelques creux liés aux dossiers incomplets de la veille.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const missingDocsCtx = document.getElementById('missingDocsChart');
+    const completionCtx = document.getElementById('completionChart');
+
+    new Chart(missingDocsCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Carte vitale', 'Mutuelle', 'Ordonnance', 'Consentement', 'Règlement'],
+        datasets: [{
+          label: 'Documents manquants',
+          data: [11, 9, 8, 6, 5],
+          backgroundColor: ['#f0801c', '#f28f36', '#f4a055', '#f7b374', '#f9c796'],
+          borderRadius: 10,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: '#102033', padding: 12 }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#61758f' }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(220,229,239,0.9)' },
+            ticks: { color: '#61758f', stepSize: 2 }
+          }
+        }
+      }
+    });
+
+    const completionData = [62, 63, 64, 66, 65, 67, 68, 69, 70, 70, 71, 72, 72, 73, 71, 72, 73, 74, 75, 74, 75, 76, 75, 76, 77, 77, 78, 79, 80, 81];
+    const labels = Array.from({ length: 30 }, (_, index) => `${index + 1}`);
+
+    new Chart(completionCtx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Complétude (%)',
+          data: completionData,
+          borderColor: '#f0801c',
+          backgroundColor: 'rgba(240, 128, 28, 0.16)',
+          tension: 0.32,
+          fill: true,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#f0801c'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#102033',
+            padding: 12,
+            callbacks: {
+              label: context => `${context.raw}% de dossiers complets`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#61758f', maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }
+          },
+          y: {
+            min: 50,
+            max: 100,
+            grid: { color: 'rgba(220,229,239,0.9)' },
+            ticks: { color: '#61758f', callback: value => `${value}%` }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

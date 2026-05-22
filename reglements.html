@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SJDD - Règlements</title>
+  <style>
+    :root {
+      --bg: #f5f8fb;
+      --panel: #ffffff;
+      --text: #102033;
+      --muted: #61758f;
+      --line: #dce5ef;
+      --primary: #f0801c;
+      --primary-dark: #c5620c;
+      --primary-soft: #fff1df;
+      --success: #138a36;
+      --shadow: 0 14px 40px rgba(16, 32, 51, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(240, 128, 28, 0.16), transparent 30%),
+        radial-gradient(circle at top right, rgba(240, 128, 28, 0.08), transparent 34%),
+        var(--bg);
+    }
+
+    .app-shell { min-height: 100vh; margin-left: 260px; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; width: 260px; padding: 24px 18px; background: linear-gradient(180deg, #2c1707 0%, #4b2406 100%); color: #fff; display: flex; flex-direction: column; gap: 20px; z-index: 10; box-shadow: 16px 0 40px rgba(16, 32, 51, 0.14); }
+    .brand { padding: 16px 16px 10px; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; background: rgba(255,255,255,0.05); }
+    .brand strong { display: block; font-size: 22px; letter-spacing: -0.03em; }
+    .brand span { display: block; margin-top: 6px; color: rgba(255,255,255,0.74); font-size: 13px; line-height: 1.45; }
+    .side-links { display: grid; gap: 8px; }
+    .side-link { text-decoration: none; color: rgba(255,255,255,0.88); border-radius: 16px; padding: 13px 14px; border: 1px solid transparent; background: rgba(255,255,255,0.03); font-weight: 700; transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, border-color 0.15s ease; }
+    .side-link:hover, .side-link.active { background: rgba(240, 128, 28, 0.18); border-color: rgba(240, 128, 28, 0.6); color: #fff4e8; transform: translateX(2px); }
+    .side-foot { margin-top: auto; font-size: 13px; color: rgba(255,255,255,0.72); line-height: 1.5; padding: 0 6px; }
+
+    .shell { max-width: 1420px; margin: 0 auto; padding: 28px; }
+    .topbar { display: flex; justify-content: space-between; gap: 18px; align-items: end; margin-bottom: 20px; }
+    h1 { margin: 0 0 6px; font-size: clamp(30px, 4vw, 44px); letter-spacing: -0.03em; }
+    p { margin: 0; color: var(--muted); line-height: 1.5; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+    }
+    .metric span { display: block; color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+    .metric strong { font-size: 28px; letter-spacing: -0.03em; }
+    .metric em { display: block; margin-top: 4px; font-style: normal; color: var(--muted); font-size: 13px; }
+
+    .cards { display: grid; gap: 16px; }
+    .patient-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .patient-card header {
+      padding: 16px 18px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      display: flex; justify-content: space-between; gap: 12px; align-items: center;
+    }
+    .patient-card header h2 { margin: 0; font-size: 20px; }
+    .patient-card header small { opacity: 0.9; }
+    .patient-card .body { padding: 18px; }
+
+    .two-lines { display: grid; gap: 12px; }
+    .pay-line {
+      display: grid;
+      grid-template-columns: 1.25fr 0.55fr 0.6fr 0.9fr;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fffaf3;
+    }
+    .doctor-name { font-weight: 800; margin-bottom: 4px; }
+    .line-note { color: var(--muted); font-size: 13px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    label { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    input, select {
+      width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; font: inherit; background: #fff; color: var(--text);
+    }
+    .reason-wrap { display: none; }
+    .reason-wrap.visible { display: flex; flex-direction: column; gap: 6px; }
+    .mode-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 7px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); font-size: 12px; font-weight: 800; width: fit-content;
+    }
+
+    @media (max-width: 1100px) {
+      .app-shell { margin-left: 0; }
+      .sidebar { position: sticky; inset: auto; width: auto; border-radius: 0 0 20px 20px; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pay-line { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <strong>SJDD</strong>
+      <span>Bloc opératoire<br />Interfaces de suivi</span>
+    </div>
+    <nav class="side-links" aria-label="Navigation principale">
+      <a class="side-link" href="index.html">Dossiers du jour</a>
+      <a class="side-link" href="detail.html">Détail dossier</a>
+      <a class="side-link active" href="reglements.html">Règlements</a>
+      <a class="side-link" href="mail-medecin.html">Mail médecin</a>
+      <a class="side-link" href="dashboard.html">Dashboard</a>
+    </nav>
+  </aside>
+
+  <div class="app-shell">
+    <div class="shell">
+      <div>
+        <h1>Règlements</h1>
+        <p>Chaque patient du jour a une ligne de saisie pour le chirurgien et une ligne pour l'anesthésiste, avec motif si le paiement n'a pas été perçu.</p>
+      </div>
+
+    <section class="summary">
+      <div class="metric"><span>Patients du jour</span><strong>10</strong><em>Tous avec lignes de règlement pré-remplies</em></div>
+      <div class="metric"><span>Montant perçu</span><strong>3 585 €</strong><em>Somme chirurgicale + anesthésie</em></div>
+      <div class="metric"><span>Non perçus</span><strong>4</strong><em>Motifs à suivre ou à relancer</em></div>
+      <div class="metric"><span>Moyens saisis</span><strong>CB / Chèque / Espèces</strong><em>Avec état non perçu si besoin</em></div>
+    </section>
+
+      <div class="cards" id="patients"></div>
+    </div>
+  </div>
+
+  <script>
+    const patients = [
+      {
+        patient: 'Léa Martin',
+        time: '07:50',
+        surgery: 'Arthroscopie du genou droit',
+        lines: [
+          { role: 'Chirurgien', doctor: 'Dr Claire Bernard', amount: 180, mode: 'cb', reason: '' },
+          { role: 'Anesthésiste', doctor: 'Dr Thomas Morel', amount: 90, mode: 'especes', reason: '' }
+        ]
+      },
+      {
+        patient: 'Hugo Bernard',
+        time: '08:05',
+        surgery: 'Ligamentoplastie',
+        lines: [
+          { role: 'Chirurgien', doctor: 'Dr Julien Lefèvre', amount: 210, mode: 'cheque', reason: '' },
+          { role: 'Anesthésiste', doctor: 'Dr Thomas Morel', amount: 100, mode: 'non-percu', reason: 'Assurance en attente' }
+        ]
+      },
+      {
+        patient: 'Chloé Durand',
+        time: '08:20',
+        surgery: 'Chirurgie de la main',
+        lines: [
+          { role: 'Chirurgien', doctor: 'Dr Sophie Caron', amount: 190, mode: 'especes', reason: '' },
+          { role: 'Anesthésiste', doctor: 'Dr Inès Nguyen', amount: 95, mode: 'cb', reason: '' }
+        ]
+      },
+      {
+        patient: 'Adam Petit',
+        time: '08:35',
+        surgery: 'Hernie inguinale',
+        lines: [
+          { role: 'Chirurgien', doctor: 'Dr Antoine Dupuis', amount: 220, mode: 'non-percu', reason: 'Carte oubliée' },
+          { role: 'Anesthésiste', doctor: 'Dr Marc Pelletier', amount: 110, mode: 'cb', reason: '' }
+        ]
+      },
+      {
+        patient: 'Emma Robert',
+        time: '08:55',
+        surgery: 'Endoscopie ORL',
+        lines: [
+          { role: 'Chirurgien', doctor: 'Dr Claire Bernard', amount: 180, mode: 'cheque', reason: '' },
+          { role: 'Anesthésiste', doctor: 'Dr Thomas Morel', amount: 90, mode: 'cb', reason: '' }
+        ]
+      },
+      {
+        patient: 'Noé Laurent',
+        time: '09:10',
+        surgery: 'Kyste cutané',
+        lines: [
+          { role: 'Chirurgien', doctor: 'Dr Julien Lefèvre', amount: 200, mode: 'cb', reason: '' },
+          { role: 'Anesthésiste', doctor: 'Dr Inès Nguyen', amount: 100, mode: 'especes', reason: '' }
+        ]
+      },
+      {
+        patient: 'Jade Moreau',
+        time: '09:25',
+        surgery: 'Hallux valgus',
+        lines: [
+          { role: 'Chirurgien', doctor: 'Dr Sophie Caron', amount: 195, mode: 'cheque', reason: '' },
+          { role: 'Anesthésiste', doctor: 'Dr Marc Pelletier', amount: 105, mode: 'non-percu', reason: 'Patient parti avant passage' }
+        ]
+      },
+      {
+        patient: 'Lucas Fontaine',
+        time: '09:40',
+        surgery: 'Chirurgie de la cheville',
+        lines: [
+          { role: 'Chirurgien', doctor: 'Dr Antoine Dupuis', amount: 215, mode: 'cb', reason: '' },
+          { role: 'Anesthésiste', doctor: 'Dr Thomas Morel', amount: 100, mode: 'especes', reason: '' }
+        ]
+      },
+      {
+        patient: 'Inès Garcia',
+        time: '10:00',
+        surgery: 'Extraction matériel',
+        lines: [
+          { role: 'Chirurgien', doctor: 'Dr Claire Bernard', amount: 185, mode: 'especes', reason: '' },
+          { role: 'Anesthésiste', doctor: 'Dr Inès Nguyen', amount: 95, mode: 'cheque', reason: '' }
+        ]
+      },
+      {
+        patient: 'Paul Mercier',
+        time: '10:15',
+        surgery: 'Microchirurgie',
+        lines: [
+          { role: 'Chirurgien', doctor: 'Dr Julien Lefèvre', amount: 205, mode: 'non-percu', reason: 'Réglé en fin de semaine' },
+          { role: 'Anesthésiste', doctor: 'Dr Marc Pelletier', amount: 110, mode: 'cheque', reason: '' }
+        ]
+      }
+    ];
+
+    const formatAmount = value => `${value.toFixed(0)} €`;
+    const paymentModeLabel = { cheque: 'Chèque', cb: 'CB', especes: 'Espèces', 'non-percu': 'Non perçu' };
+
+    function renderLine(line) {
+      return `
+        <div class="pay-line">
+          <div>
+            <div class="doctor-name">${line.role} — ${line.doctor}</div>
+            <div class="line-note">${line.role} du dossier</div>
+          </div>
+          <div class="field">
+            <label>Montant</label>
+            <input type="number" min="0" step="1" value="${line.amount}" />
+          </div>
+          <div class="field">
+            <label>Mode</label>
+            <select class="mode-select">
+              <option value="cheque" ${line.mode === 'cheque' ? 'selected' : ''}>Chèque</option>
+              <option value="cb" ${line.mode === 'cb' ? 'selected' : ''}>CB</option>
+              <option value="especes" ${line.mode === 'especes' ? 'selected' : ''}>Espèces</option>
+              <option value="non-percu" ${line.mode === 'non-percu' ? 'selected' : ''}>Non perçu</option>
+            </select>
+          </div>
+          <div class="field reason-wrap ${line.mode === 'non-percu' ? 'visible' : ''}">
+            <label>Motif</label>
+            <input type="text" value="${line.reason || ''}" placeholder="Motif du non-perçu" />
+          </div>
+        </div>
+      `;
+    }
+
+    const container = document.getElementById('patients');
+    container.innerHTML = patients.map(patient => `
+      <article class="patient-card">
+        <header>
+          <div>
+            <h2>${patient.patient}</h2>
+            <small>${patient.time} · ${patient.surgery}</small>
+          </div>
+          <span class="mode-badge">2 lignes de règlement</span>
+        </header>
+        <div class="body">
+          <div class="two-lines">
+            ${patient.lines.map(renderLine).join('')}
+          </div>
+        </div>
+      </article>
+    `).join('');
+
+    container.querySelectorAll('.pay-line').forEach(line => {
+      const select = line.querySelector('.mode-select');
+      const reasonWrap = line.querySelector('.reason-wrap');
+      const syncReason = () => {
+        reasonWrap.classList.toggle('visible', select.value === 'non-percu');
+      };
+      select.addEventListener('change', syncReason);
+      syncReason();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SJDD - Mail médecin</title>
+  <style>
+    :root {
+      --bg: #f5f8fb;
+      --panel: #ffffff;
+      --text: #102033;
+      --muted: #61758f;
+      --line: #dce5ef;
+      --primary: #f0801c;
+      --primary-dark: #c5620c;
+      --primary-soft: #fff1df;
+      --warning-soft: #fff1df;
+      --warning: #c96a00;
+      --success: #138a36;
+      --shadow: 0 14px 40px rgba(16, 32, 51, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(240, 128, 28, 0.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(240, 128, 28, 0.08), transparent 32%),
+        var(--bg);
+    }
+
+    .app-shell { min-height: 100vh; margin-left: 260px; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; width: 260px; padding: 24px 18px; background: linear-gradient(180deg, #2c1707 0%, #4b2406 100%); color: #fff; display: flex; flex-direction: column; gap: 20px; z-index: 10; box-shadow: 16px 0 40px rgba(16, 32, 51, 0.14); }
+    .brand { padding: 16px 16px 10px; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; background: rgba(255,255,255,0.05); }
+    .brand strong { display: block; font-size: 22px; letter-spacing: -0.03em; }
+    .brand span { display: block; margin-top: 6px; color: rgba(255,255,255,0.74); font-size: 13px; line-height: 1.45; }
+    .side-links { display: grid; gap: 8px; }
+    .side-link { text-decoration: none; color: rgba(255,255,255,0.88); border-radius: 16px; padding: 13px 14px; border: 1px solid transparent; background: rgba(255,255,255,0.03); font-weight: 700; transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, border-color 0.15s ease; }
+    .side-link:hover, .side-link.active { background: rgba(240, 128, 28, 0.18); border-color: rgba(240, 128, 28, 0.6); color: #fff4e8; transform: translateX(2px); }
+    .side-foot { margin-top: auto; font-size: 13px; color: rgba(255,255,255,0.72); line-height: 1.5; padding: 0 6px; }
+
+    .shell { max-width: 1420px; margin: 0 auto; padding: 28px; }
+    .topbar { display: flex; justify-content: space-between; gap: 18px; align-items: end; margin-bottom: 20px; }
+    h1 { margin: 0 0 6px; font-size: clamp(30px, 4vw, 44px); letter-spacing: -0.03em; }
+    p { margin: 0; color: var(--muted); line-height: 1.5; }
+    .grouping { display: grid; gap: 16px; }
+    .doctor-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .doctor-card header {
+      padding: 16px 18px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      display: flex; justify-content: space-between; gap: 12px; align-items: center;
+    }
+    .doctor-card header h2 { margin: 0; font-size: 20px; }
+    .doctor-card header small { opacity: 0.9; }
+    .doctor-card .body { padding: 18px; }
+
+    .summary-line {
+      display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 16px; background: #fffaf3;
+    }
+    .summary-line span { color: var(--muted); }
+    .summary-line strong { color: var(--text); }
+
+    .patient-list { display: grid; gap: 10px; margin-bottom: 14px; }
+    .patient-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: #fffaf3;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .patient-item h3 { margin: 0 0 4px; font-size: 16px; }
+    .patient-item p { margin: 0; font-size: 13px; color: var(--muted); }
+    .amount {
+      font-weight: 800;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 8px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .status {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; width: fit-content;
+    }
+    .status.percu { background: #e8f7ec; color: var(--success); }
+    .status.nonpercu { background: var(--warning-soft); color: var(--warning); }
+
+    .reason { color: var(--muted); margin-top: 6px; font-size: 13px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .btn {
+      border: 0; border-radius: 12px; padding: 11px 14px; font-weight: 800; cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary { background: var(--primary); color: #fff; }
+    .btn.primary:hover { background: var(--primary-dark); }
+    .btn.secondary { background: #f4e3d1; color: var(--text); }
+    .btn.secondary:hover { background: #eed1b1; }
+
+    @media (max-width: 880px) {
+      .app-shell { margin-left: 0; }
+      .sidebar { position: sticky; inset: auto; width: auto; border-radius: 0 0 20px 20px; }
+      .patient-item { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <strong>SJDD</strong>
+      <span>Bloc opératoire<br />Interfaces de suivi</span>
+    </div>
+    <nav class="side-links" aria-label="Navigation principale">
+      <a class="side-link" href="index.html">Dossiers du jour</a>
+      <a class="side-link" href="detail.html">Détail dossier</a>
+      <a class="side-link" href="reglements.html">Règlements</a>
+      <a class="side-link active" href="mail-medecin.html">Mail médecin</a>
+      <a class="side-link" href="dashboard.html">Dashboard</a>
+    </nav>
+  </aside>
+
+  <div class="app-shell">
+    <div class="shell">
+      <div>
+        <h1>Mail médecin</h1>
+        <p>Récapitulatif par médecin des règlements du jour, avec un mailto généré automatiquement à partir des saisies de la page règlements.</p>
+      </div>
+
+    <div class="grouping" id="doctors"></div>
+    </div>
+  </div>
+
+  <script>
+    const records = [
+      { doctor: 'Dr Claire Bernard', email: 'claire.bernard@cabinet.fr', role: 'Chirurgien', patient: 'Léa Martin', mode: 'CB', amount: 180, paid: true },
+      { doctor: 'Dr Thomas Morel', email: 'thomas.morel@anesth.fr', role: 'Anesthésiste', patient: 'Léa Martin', mode: 'Espèces', amount: 90, paid: true },
+      { doctor: 'Dr Julien Lefèvre', email: 'julien.lefevre@cabinet.fr', role: 'Chirurgien', patient: 'Hugo Bernard', mode: 'Chèque', amount: 210, paid: true },
+      { doctor: 'Dr Thomas Morel', email: 'thomas.morel@anesth.fr', role: 'Anesthésiste', patient: 'Hugo Bernard', mode: 'Non perçu', amount: 100, paid: false, reason: 'Assurance en attente' },
+      { doctor: 'Dr Sophie Caron', email: 'sophie.caron@cabinet.fr', role: 'Chirurgien', patient: 'Chloé Durand', mode: 'Espèces', amount: 190, paid: true },
+      { doctor: 'Dr Inès Nguyen', email: 'ines.nguyen@anesth.fr', role: 'Anesthésiste', patient: 'Chloé Durand', mode: 'CB', amount: 95, paid: true },
+      { doctor: 'Dr Antoine Dupuis', email: 'antoine.dupuis@cabinet.fr', role: 'Chirurgien', patient: 'Adam Petit', mode: 'Non perçu', amount: 220, paid: false, reason: 'Carte oubliée' },
+      { doctor: 'Dr Marc Pelletier', email: 'marc.pelletier@anesth.fr', role: 'Anesthésiste', patient: 'Adam Petit', mode: 'CB', amount: 110, paid: true },
+      { doctor: 'Dr Claire Bernard', email: 'claire.bernard@cabinet.fr', role: 'Chirurgien', patient: 'Emma Robert', mode: 'Chèque', amount: 180, paid: true },
+      { doctor: 'Dr Thomas Morel', email: 'thomas.morel@anesth.fr', role: 'Anesthésiste', patient: 'Emma Robert', mode: 'CB', amount: 90, paid: true },
+      { doctor: 'Dr Julien Lefèvre', email: 'julien.lefevre@cabinet.fr', role: 'Chirurgien', patient: 'Noé Laurent', mode: 'CB', amount: 200, paid: true },
+      { doctor: 'Dr Inès Nguyen', email: 'ines.nguyen@anesth.fr', role: 'Anesthésiste', patient: 'Noé Laurent', mode: 'Espèces', amount: 100, paid: true },
+      { doctor: 'Dr Sophie Caron', email: 'sophie.caron@cabinet.fr', role: 'Chirurgien', patient: 'Jade Moreau', mode: 'Chèque', amount: 195, paid: true },
+      { doctor: 'Dr Marc Pelletier', email: 'marc.pelletier@anesth.fr', role: 'Anesthésiste', patient: 'Jade Moreau', mode: 'Non perçu', amount: 105, paid: false, reason: 'Patient parti avant passage' },
+      { doctor: 'Dr Antoine Dupuis', email: 'antoine.dupuis@cabinet.fr', role: 'Chirurgien', patient: 'Lucas Fontaine', mode: 'CB', amount: 215, paid: true },
+      { doctor: 'Dr Thomas Morel', email: 'thomas.morel@anesth.fr', role: 'Anesthésiste', patient: 'Lucas Fontaine', mode: 'Espèces', amount: 100, paid: true },
+      { doctor: 'Dr Claire Bernard', email: 'claire.bernard@cabinet.fr', role: 'Chirurgien', patient: 'Inès Garcia', mode: 'Espèces', amount: 185, paid: true },
+      { doctor: 'Dr Inès Nguyen', email: 'ines.nguyen@anesth.fr', role: 'Anesthésiste', patient: 'Inès Garcia', mode: 'Chèque', amount: 95, paid: true },
+      { doctor: 'Dr Julien Lefèvre', email: 'julien.lefevre@cabinet.fr', role: 'Chirurgien', patient: 'Paul Mercier', mode: 'Non perçu', amount: 205, paid: false, reason: 'Réglé en fin de semaine' },
+      { doctor: 'Dr Marc Pelletier', email: 'marc.pelletier@anesth.fr', role: 'Anesthésiste', patient: 'Paul Mercier', mode: 'Chèque', amount: 110, paid: true }
+    ];
+
+    const grouped = Object.values(records.reduce((acc, record) => {
+      acc[record.doctor] ||= { doctor: record.doctor, email: record.email, items: [] };
+      acc[record.doctor].items.push(record);
+      return acc;
+    }, {}));
+
+    const container = document.getElementById('doctors');
+
+    function buildBody(doctor) {
+      const lines = doctor.items.map(item => {
+        if (item.paid) {
+          return `${item.patient} - ${item.role} : ${item.amount} € (${item.mode})`;
+        }
+        return `${item.patient} - ${item.role} : ${item.amount} € (${item.mode}) - motif : ${item.reason}`;
+      }).join('\n');
+
+      return [
+        `Bonjour ${doctor.doctor},`,
+        '',
+        'Voici le récapitulatif des règlements du jour :',
+        '',
+        lines,
+        '',
+        'Bien cordialement,',
+        'Secrétariat du bloc'
+      ].join('\n');
+    }
+
+    container.innerHTML = grouped.map(doctor => {
+      const totalPaid = doctor.items.filter(item => item.paid).reduce((sum, item) => sum + item.amount, 0);
+      const nonPaid = doctor.items.filter(item => !item.paid);
+      const paidItems = doctor.items.filter(item => item.paid);
+      return `
+        <article class="doctor-card">
+          <header>
+            <div>
+              <h2>${doctor.doctor}</h2>
+              <small>${doctor.email}</small>
+            </div>
+            <span>${doctor.items.length} mouvement(s)</span>
+          </header>
+          <div class="body">
+            <div class="summary-line">
+              <div><span>Montant perçu</span><strong>${totalPaid} €</strong></div>
+              <div><span>Règlements saisis</span><strong>${paidItems.length}</strong></div>
+              <div><span>Non perçus</span><strong>${nonPaid.length}</strong></div>
+            </div>
+            <div class="patient-list">
+              ${doctor.items.map(item => `
+                <div class="patient-item">
+                  <div>
+                    <h3>${item.patient} · ${item.role}</h3>
+                    <p>${item.paid ? 'Règlement perçu' : 'Règlement non perçu'}${item.paid ? '' : ' - ' + item.reason}</p>
+                    <div class="status ${item.paid ? 'percu' : 'nonpercu'}">${item.mode}</div>
+                    ${item.paid ? '' : `<div class="reason">Motif : ${item.reason}</div>`}
+                  </div>
+                  <div class="amount">${item.amount} €</div>
+                </div>
+              `).join('')}
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="button" data-doctor="${doctor.doctor}">Générer et ouvrir le mail</button>
+              <button class="btn secondary" type="button" data-copy="${doctor.doctor}">Copier le résumé</button>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    container.querySelectorAll('[data-doctor]').forEach(button => {
+      button.addEventListener('click', () => {
+        const doctor = grouped.find(entry => entry.doctor === button.dataset.doctor);
+        const subject = `Récapitulatif règlements du jour - ${doctor.doctor}`;
+        const body = buildBody(doctor);
+        window.open(`mailto:${doctor.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+      });
+    });
+
+    container.querySelectorAll('[data-copy]').forEach(button => {
+      button.addEventListener('click', async () => {
+        const doctor = grouped.find(entry => entry.doctor === button.dataset.copy);
+        try {
+          await navigator.clipboard.writeText(buildBody(doctor));
+          button.textContent = 'Résumé copié';
+          setTimeout(() => button.textContent = 'Copier le résumé', 1200);
+        } catch {
+          button.textContent = 'Copie indisponible';
+          setTimeout(() => button.textContent = 'Copier le résumé', 1200);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

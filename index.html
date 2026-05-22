@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SJDD - Dossiers du jour</title>
+  <style>
+    :root {
+      --bg: #f5f8fb;
+      --panel: #ffffff;
+      --text: #102033;
+      --muted: #61758f;
+      --line: #dce5ef;
+      --primary: #f0801c;
+      --primary-dark: #c5620c;
+      --primary-soft: #fff1df;
+      --primary-soft-2: #fff8ef;
+      --success: #138a36;
+      --success-soft: #e8f7ec;
+      --warning: #c96a00;
+      --warning-soft: #fff1df;
+      --danger: #bb1f3c;
+      --shadow: 0 14px 40px rgba(16, 32, 51, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(240, 128, 28, 0.16), transparent 34%),
+        radial-gradient(circle at top right, rgba(240, 128, 28, 0.08), transparent 30%),
+        var(--bg);
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      margin-left: 260px;
+    }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 260px;
+      padding: 24px 18px;
+      background: linear-gradient(180deg, #2c1707 0%, #4b2406 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      z-index: 10;
+      box-shadow: 16px 0 40px rgba(16, 32, 51, 0.14);
+    }
+
+    .brand {
+      padding: 16px 16px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .brand strong { display: block; font-size: 22px; letter-spacing: -0.03em; }
+    .brand span { display: block; margin-top: 6px; color: rgba(255, 255, 255, 0.74); font-size: 13px; line-height: 1.45; }
+
+    .side-links { display: grid; gap: 8px; }
+
+    .side-link {
+      text-decoration: none;
+      color: rgba(255, 255, 255, 0.88);
+      border-radius: 16px;
+      padding: 13px 14px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.03);
+      font-weight: 700;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .side-link:hover, .side-link.active {
+      background: rgba(240, 128, 28, 0.18);
+      border-color: rgba(240, 128, 28, 0.6);
+      color: #fff4e8;
+      transform: translateX(2px);
+    }
+
+    .side-foot {
+      margin-top: auto;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.72);
+      line-height: 1.5;
+      padding: 0 6px;
+    }
+
+    .shell {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .title h1 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 44px);
+      letter-spacing: -0.03em;
+    }
+
+    .title p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.5;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      border-radius: 24px;
+      padding: 18px 22px;
+      box-shadow: var(--shadow);
+      min-width: 250px;
+    }
+
+    .hero-card strong { display: block; font-size: 28px; margin-bottom: 4px; }
+    .hero-card span { color: rgba(255,255,255,0.84); font-size: 14px; }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(220,229,239,0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1250px;
+    }
+
+    thead th {
+      text-align: left;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      background: #f8fbfe;
+      padding: 16px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    tbody td {
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    tbody tr:hover { background: #fffaf3; }
+
+    .patient {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .time-chip, .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .time-chip { background: var(--primary-soft); color: var(--primary); }
+    .status-chip { background: var(--primary-soft-2); color: var(--primary-dark); }
+    .status-chip.prepared { background: var(--success-soft); color: var(--success); }
+    .status-chip.pending { background: #fff4e8; color: var(--warning); }
+
+    .doc-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(42px, 1fr));
+      gap: 8px;
+      max-width: 270px;
+    }
+
+    .doc-pill {
+      border-radius: 12px;
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.05;
+      border: 1px solid transparent;
+      transition: transform 0.15s ease;
+    }
+
+    .doc-pill.present {
+      background: #edf9f2;
+      color: #146b36;
+      border-color: #cdeed8;
+    }
+
+    .doc-pill.missing {
+      background: #f3f6fa;
+      color: #8a9ab0;
+      border-color: #e4ebf3;
+    }
+
+    .doc-pill:hover { transform: translateY(-1px); }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn:disabled { cursor: not-allowed; opacity: 0.6; transform: none; }
+    .btn.primary { background: var(--primary); color: #fff; }
+    .btn.primary:hover { background: var(--primary-dark); }
+    .btn.secondary { background: #f7e6d6; color: var(--text); }
+    .btn.secondary:hover { background: #f1d4b8; }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #fffaf3;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend span { display: inline-flex; align-items: center; gap: 8px; }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.good { background: #18a957; }
+    .dot.missing { background: #9aa8b9; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(16, 32, 51, 0.44);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      z-index: 20;
+    }
+
+    .modal {
+      width: min(900px, 100%);
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 32px 90px rgba(16, 32, 51, 0.25);
+      overflow: hidden;
+    }
+
+    .modal header {
+      padding: 18px 22px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .modal header h2 { margin: 0; font-size: 22px; }
+    .modal header p { margin: 6px 0 0; opacity: 0.9; }
+
+    .close {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 0;
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px 22px 22px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      background: #fff;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 260px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .checks {
+      display: grid;
+      gap: 10px;
+      margin: 12px 0 16px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: #fffaf3;
+    }
+
+    .check-row input { width: 18px; height: 18px; margin: 0; }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .footnote {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 1100px) {
+      .hero { flex-direction: column; align-items: stretch; }
+      .modal-body { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 1100px) {
+      .app-shell { margin-left: 0; }
+      .sidebar {
+        position: sticky;
+        inset: auto;
+        width: auto;
+        border-radius: 0 0 20px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <strong>SJDD</strong>
+      <span>Bloc opératoire<br />Interfaces de suivi</span>
+    </div>
+    <nav class="side-links" aria-label="Navigation principale">
+      <a class="side-link active" href="index.html">Dossiers du jour</a>
+      <a class="side-link" href="detail.html">Détail dossier</a>
+      <a class="side-link" href="reglements.html">Règlements</a>
+      <a class="side-link" href="mail-medecin.html">Mail médecin</a>
+      <a class="side-link" href="dashboard.html">Dashboard</a>
+    </nav>
+  </aside>
+
+  <div class="app-shell">
+    <div class="shell">
+    <div class="hero">
+      <div class="title">
+        <h1>Dossiers du jour</h1>
+        <p>Vue de travail pour l'équipe du bloc. Les dossiers ci-dessous sont fictifs mais cohérents avec les pages détail, règlements et mail médecin.</p>
+      </div>
+      <div class="hero-card">
+        <strong>20</strong>
+        <span>dossiers affichés sur la journée</span>
+      </div>
+    </div>
+
+    <section class="panel">
+      <div class="legend">
+        <span><i class="dot good"></i> Document présent</span>
+        <span><i class="dot missing"></i> Document manquant</span>
+        <span>CV = carte vitale · MU = mutuelle · OR = ordonnance · CO = consentement · RE = règlement</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom / prénom patient</th>
+              <th>Heure d'intervention</th>
+              <th>Chirurgien</th>
+              <th>Anesthésiste</th>
+              <th>Statut</th>
+              <th>Documents</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="dossierRows"></tbody>
+        </table>
+      </div>
+    </section>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="relanceModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="relanceTitle">
+      <header>
+        <div>
+          <h2 id="relanceTitle">Relance dossier</h2>
+          <p id="relanceSubtitle"></p>
+        </div>
+        <button class="close" type="button" id="closeModal" aria-label="Fermer">×</button>
+      </header>
+      <div class="modal-body">
+        <div>
+          <div class="field">
+            <label for="recipientEmail">Adresse mail</label>
+            <input id="recipientEmail" type="email" />
+          </div>
+          <div>
+            <label>Documents manquants</label>
+            <div class="checks" id="missingChecks"></div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn primary" type="button" id="openMailClient">Ouvrir dans le client mail</button>
+            <button class="btn secondary" type="button" id="copyPreview">Copier le brouillon</button>
+          </div>
+        </div>
+        <div>
+          <label for="mailPreview">Aperçu du mail généré</label>
+          <textarea id="mailPreview" readonly></textarea>
+          <div class="footnote">Le bouton ouvre un <i>mailto:</i> avec les documents cochés et le corps du mail généré automatiquement.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const dossierData = [
+      { patient: 'Léa Martin', heure: '07:50', chirurgien: 'Dr Claire Bernard', anesthesiste: 'Dr Thomas Morel', prepared: true, email: 'lea.martin@exemple-sante.fr', docs: { cv: true, mu: true, or: true, co: true, re: true } },
+      { patient: 'Hugo Bernard', heure: '08:05', chirurgien: 'Dr Julien Lefèvre', anesthesiste: 'Dr Thomas Morel', prepared: false, email: 'hugo.bernard@exemple-sante.fr', docs: { cv: false, mu: false, or: true, co: true, re: true } },
+      { patient: 'Chloé Durand', heure: '08:20', chirurgien: 'Dr Sophie Caron', anesthesiste: 'Dr Inès Nguyen', prepared: true, email: 'chloe.durand@exemple-sante.fr', docs: { cv: true, mu: true, or: true, co: false, re: true } },
+      { patient: 'Adam Petit', heure: '08:35', chirurgien: 'Dr Antoine Dupuis', anesthesiste: 'Dr Marc Pelletier', prepared: false, email: 'adam.petit@exemple-sante.fr', docs: { cv: false, mu: true, or: true, co: false, re: true } },
+      { patient: 'Emma Robert', heure: '08:55', chirurgien: 'Dr Claire Bernard', anesthesiste: 'Dr Thomas Morel', prepared: true, email: 'emma.robert@exemple-sante.fr', docs: { cv: true, mu: true, or: true, co: true, re: false } },
+      { patient: 'Noé Laurent', heure: '09:10', chirurgien: 'Dr Julien Lefèvre', anesthesiste: 'Dr Inès Nguyen', prepared: false, email: 'noe.laurent@exemple-sante.fr', docs: { cv: true, mu: false, or: true, co: false, re: false } },
+      { patient: 'Jade Moreau', heure: '09:25', chirurgien: 'Dr Sophie Caron', anesthesiste: 'Dr Marc Pelletier', prepared: true, email: 'jade.moreau@exemple-sante.fr', docs: { cv: true, mu: true, or: true, co: true, re: true } },
+      { patient: 'Lucas Fontaine', heure: '09:40', chirurgien: 'Dr Antoine Dupuis', anesthesiste: 'Dr Thomas Morel', prepared: false, email: 'lucas.fontaine@exemple-sante.fr', docs: { cv: true, mu: false, or: false, co: true, re: true } },
+      { patient: 'Inès Garcia', heure: '10:00', chirurgien: 'Dr Claire Bernard', anesthesiste: 'Dr Inès Nguyen', prepared: true, email: 'ines.garcia@exemple-sante.fr', docs: { cv: true, mu: true, or: true, co: true, re: true } },
+      { patient: 'Paul Mercier', heure: '10:15', chirurgien: 'Dr Julien Lefèvre', anesthesiste: 'Dr Marc Pelletier', prepared: false, email: 'paul.mercier@exemple-sante.fr', docs: { cv: false, mu: true, or: true, co: true, re: false } },
+      { patient: 'Camille Roche', heure: '10:30', chirurgien: 'Dr Sophie Caron', anesthesiste: 'Dr Thomas Morel', prepared: true, email: 'camille.roche@exemple-sante.fr', docs: { cv: true, mu: false, or: true, co: true, re: true } },
+      { patient: 'Sarah Dubois', heure: '10:45', chirurgien: 'Dr Antoine Dupuis', anesthesiste: 'Dr Inès Nguyen', prepared: false, email: 'sarah.dubois@exemple-sante.fr', docs: { cv: false, mu: false, or: true, co: true, re: true } },
+      { patient: 'Nathan Leroy', heure: '11:00', chirurgien: 'Dr Claire Bernard', anesthesiste: 'Dr Marc Pelletier', prepared: true, email: 'nathan.leroy@exemple-sante.fr', docs: { cv: true, mu: true, or: true, co: true, re: false } },
+      { patient: 'Manon Blanc', heure: '11:15', chirurgien: 'Dr Julien Lefèvre', anesthesiste: 'Dr Thomas Morel', prepared: true, email: 'manon.blanc@exemple-sante.fr', docs: { cv: true, mu: true, or: false, co: true, re: true } },
+      { patient: 'Elias Perrin', heure: '11:35', chirurgien: 'Dr Sophie Caron', anesthesiste: 'Dr Inès Nguyen', prepared: false, email: 'elias.perrin@exemple-sante.fr', docs: { cv: true, mu: false, or: false, co: false, re: true } },
+      { patient: 'Zoé Gauthier', heure: '11:50', chirurgien: 'Dr Antoine Dupuis', anesthesiste: 'Dr Marc Pelletier', prepared: true, email: 'zoe.gauthier@exemple-sante.fr', docs: { cv: true, mu: true, or: true, co: true, re: true } },
+      { patient: 'Timéo Faure', heure: '12:05', chirurgien: 'Dr Claire Bernard', anesthesiste: 'Dr Thomas Morel', prepared: false, email: 'timeo.faure@exemple-sante.fr', docs: { cv: false, mu: true, or: true, co: false, re: true } },
+      { patient: 'Alice Chevalier', heure: '12:20', chirurgien: 'Dr Julien Lefèvre', anesthesiste: 'Dr Inès Nguyen', prepared: true, email: 'alice.chevalier@exemple-sante.fr', docs: { cv: true, mu: true, or: true, co: true, re: false } },
+      { patient: 'Mathis Vasseur', heure: '12:35', chirurgien: 'Dr Sophie Caron', anesthesiste: 'Dr Marc Pelletier', prepared: false, email: 'mathis.vasseur@exemple-sante.fr', docs: { cv: true, mu: false, or: true, co: true, re: false } },
+      { patient: 'Lisa Fournier', heure: '12:50', chirurgien: 'Dr Antoine Dupuis', anesthesiste: 'Dr Thomas Morel', prepared: true, email: 'lisa.fournier@exemple-sante.fr', docs: { cv: true, mu: true, or: true, co: true, re: true } }
+    ];
+
+    const docLabels = [
+      { key: 'cv', label: 'CV' },
+      { key: 'mu', label: 'MU' },
+      { key: 'or', label: 'OR' },
+      { key: 'co', label: 'CO' },
+      { key: 're', label: 'RE' }
+    ];
+
+    const rows = document.getElementById('dossierRows');
+    const modal = document.getElementById('relanceModal');
+    const subtitle = document.getElementById('relanceSubtitle');
+    const emailInput = document.getElementById('recipientEmail');
+    const missingChecks = document.getElementById('missingChecks');
+    const mailPreview = document.getElementById('mailPreview');
+    const closeModal = document.getElementById('closeModal');
+    const openMailClient = document.getElementById('openMailClient');
+    const copyPreview = document.getElementById('copyPreview');
+
+    let activeDossier = null;
+
+    function getMissingDocs(dossier) {
+      return docLabels.filter(doc => !dossier.docs[doc.key]);
+    }
+
+    function renderDocStrip(dossier) {
+      return docLabels.map(doc => `
+        <div class="doc-pill ${dossier.docs[doc.key] ? 'present' : 'missing'}" title="${doc.label} ${dossier.docs[doc.key] ? 'présent' : 'manquant'}">
+          ${doc.label}<br>${dossier.docs[doc.key] ? 'OK' : '—'}
+        </div>
+      `).join('');
+    }
+
+    function buildPreview(dossier, selectedDocs, recipient) {
+      const docList = selectedDocs.length ? selectedDocs.map(doc => `- ${doc}`).join('\n') : '- Aucun document manquant';
+      return [
+        `Bonjour,`,
+        '',
+        `Nous vous contactons au sujet du dossier de ${dossier.patient} programmé à ${dossier.heure}.`,
+        '',
+        'Documents attendus / manquants :',
+        docList,
+        '',
+        `Merci de transmettre les pièces à l'adresse ${recipient} ou de les apporter au secrétariat avant le passage en bloc.`,
+        '',
+        'Bien cordialement,',
+        'Secrétariat du bloc'
+      ].join('\n');
+    }
+
+    function openModalForDossier(dossier) {
+      activeDossier = dossier;
+      const missing = getMissingDocs(dossier);
+      subtitle.textContent = `${dossier.patient} · ${missing.length ? missing.length + ' document(s) manquant(s)' : 'dossier complet'}`;
+      emailInput.value = dossier.email;
+      missingChecks.innerHTML = missing.length ? missing.map(doc => `
+        <label class="check-row">
+          <input type="checkbox" checked value="${doc.label}" />
+          <span>${doc.label}</span>
+        </label>
+      `).join('') : '<div class="check-row">Aucun document manquant sur ce dossier.</div>';
+      refreshPreview();
+      modal.style.display = 'flex';
+    }
+
+    function getSelectedDocs() {
+      return Array.from(missingChecks.querySelectorAll('input[type="checkbox"]:checked')).map(input => input.value);
+    }
+
+    function refreshPreview() {
+      if (!activeDossier) return;
+      mailPreview.value = buildPreview(activeDossier, getSelectedDocs(), emailInput.value.trim() || activeDossier.email);
+    }
+
+    dossierData.forEach((dossier, index) => {
+      const tr = document.createElement('tr');
+      tr.dataset.index = String(index);
+      tr.innerHTML = `
+        <td>
+          <div class="patient">${dossier.patient}</div>
+          <div class="subtle">${dossier.email}</div>
+        </td>
+        <td><span class="time-chip">${dossier.heure}</span></td>
+        <td>${dossier.chirurgien}</td>
+        <td>${dossier.anesthesiste}</td>
+        <td><span class="status-chip ${dossier.prepared ? 'prepared' : 'pending'}">${dossier.prepared ? 'Préparé' : 'Non préparé'}</span></td>
+        <td><div class="doc-strip">${renderDocStrip(dossier)}</div></td>
+        <td>
+          <div class="actions">
+            <button class="btn primary mark-prepared" type="button">Marquer préparé</button>
+            <button class="btn secondary relance" type="button">Relance</button>
+          </div>
+        </td>
+      `;
+      const statusChip = tr.querySelector('.status-chip');
+      const preparedButton = tr.querySelector('.mark-prepared');
+      preparedButton.disabled = dossier.prepared;
+      if (dossier.prepared) {
+        preparedButton.textContent = 'Déjà préparé';
+      }
+      preparedButton.addEventListener('click', () => {
+        dossier.prepared = true;
+        statusChip.className = 'status-chip prepared';
+        statusChip.textContent = 'Préparé';
+        preparedButton.disabled = true;
+        preparedButton.textContent = 'Déjà préparé';
+      });
+      tr.querySelector('.relance').addEventListener('click', () => openModalForDossier(dossier));
+      rows.appendChild(tr);
+    });
+
+    function closeRelance() {
+      modal.style.display = 'none';
+      activeDossier = null;
+    }
+
+    missingChecks.addEventListener('change', refreshPreview);
+    emailInput.addEventListener('input', refreshPreview);
+    closeModal.addEventListener('click', closeRelance);
+    modal.addEventListener('click', event => {
+      if (event.target === modal) closeRelance();
+    });
+
+    openMailClient.addEventListener('click', () => {
+      if (!activeDossier) return;
+      const selectedDocs = getSelectedDocs();
+      const recipient = emailInput.value.trim() || activeDossier.email;
+      const body = buildPreview(activeDossier, selectedDocs, recipient);
+      const subject = `Relance dossier ${activeDossier.patient}`;
+      const mailto = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(mailto, '_blank');
+    });
+
+    copyPreview.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(mailPreview.value);
+        copyPreview.textContent = 'Brouillon copié';
+        setTimeout(() => copyPreview.textContent = 'Copier le brouillon', 1200);
+      } catch {
+        copyPreview.textContent = 'Copie indisponible';
+        setTimeout(() => copyPreview.textContent = 'Copier le brouillon', 1200);
+      }
+    });
+  </script>
+</body>
+</html>
